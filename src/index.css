@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary Text - Deep Charcoal */
+    --primary: 220 18% 20%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Accent - Soft Sage Green */
+    --accent: 142 35% 55%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Background - Warm Cream */
+    --background: 40 20% 97%;
+    --foreground: 220 18% 20%;
+    
+    /* Muted - Light Gray Tones */
+    --muted: 40 15% 94%;
+    --muted-foreground: 220 10% 45%;
+    
+    /* Border - Very Subtle */
+    --border: 40 10% 88%;
+    
+    /* Card - Clean White */
+    --card: 0 0% 100%;
+    --card-foreground: 220 18% 20%;
+    
+    /* Highlight - Soft Lemon */
+    --highlight: 48 95% 76%;
+    --highlight-foreground: 220 18% 20%;
+  }
+  
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  h1 {
+    @apply text-5xl font-bold text-primary;
+  }
+  
+  h2 {
+    @apply text-4xl font-semibold text-primary;
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold text-primary;
+  }
+}
+
+@layer utilities {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-6 lg:px-12;
+  }
+}
