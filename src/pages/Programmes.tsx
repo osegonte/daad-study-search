@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { motion } from 'framer-motion'
-import { Search, MapPin, GraduationCap, Globe, Calendar } from 'lucide-react'
+import { Search, MapPin, GraduationCap, Globe, Calendar, Bookmark, BookmarkCheck, ArrowUpDown } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { toggleWatchlist, isInWatchlist } from '../lib/watchlist'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import FilterSidebar from '../components/programmes/FilterSidebar'
@@ -27,18 +29,25 @@ type Programme = {
   }
 }
 
+type SortOption = 'latest' | 'name' | 'city' | 'university'
+
 export default function Programmes() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [programmes, setProgrammes] = useState<Programme[]>([])
   const [loading, setLoading] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || '')
+  const [sortBy, setSortBy] = useState<SortOption>('latest')
+  const [watchlistStatus, setWatchlistStatus] = useState<Record<string, boolean>>({})
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
+  // Initialize filters from URL parameters
   const [filters, setFilters] = useState({
-    courseType: '',
-    language: '',
-    subjectArea: '',
+    courseType: searchParams.get('courseType') || '',
+    language: searchParams.get('language') || '',
+    subjectArea: searchParams.get('subjectArea') || '',
     admissionType: '',
     beginning: '',
     studyMode: '',
@@ -56,6 +65,63 @@ export default function Programmes() {
     const params = new URLSearchParams()
     if (searchQuery) params.set('query', searchQuery)
     setSearchParams(params)
+  }
+
+  // Check watchlist status for all programmes
+  useEffect(() => {
+    async function checkWatchlistStatus() {
+      if (!user || programmes.length === 0) return
+
+      const statusMap: Record<string, boolean> = {}
+      
+      for (const programme of programmes) {
+        const inWatchlist = await isInWatchlist(user.id, programme.id)
+        statusMap[programme.id] = inWatchlist
+      }
+
+      setWatchlistStatus(statusMap)
+    }
+
+    checkWatchlistStatus()
+  }, [user, programmes])
+
+  async function handleToggleWatchlist(e: React.MouseEvent, programmeId: string) {
+    e.stopPropagation()
+
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    setTogglingId(programmeId)
+
+    const { success } = await toggleWatchlist(user.id, programmeId)
+
+    if (success) {
+      setWatchlistStatus(prev => ({
+        ...prev,
+        [programmeId]: !prev[programmeId]
+      }))
+    }
+
+    setTogglingId(null)
+  }
+
+  // Sort programmes in memory
+  function sortProgrammes(programmes: Programme[], sortBy: SortOption): Programme[] {
+    const sorted = [...programmes]
+    
+    switch (sortBy) {
+      case 'name':
+        return sorted.sort((a, b) => a.title.localeCompare(b.title))
+      case 'city':
+        return sorted.sort((a, b) => a.university.city.localeCompare(b.university.city))
+      case 'university':
+        return sorted.sort((a, b) => a.university.name.localeCompare(b.university.name))
+      case 'latest':
+      default:
+        return sorted // Already sorted by created_at desc from query
+    }
   }
 
   useEffect(() => {
@@ -92,6 +158,9 @@ export default function Programmes() {
       if (filters.language) {
         query = query.eq('language_of_instruction', filters.language)
       }
+      if (filters.subjectArea) {
+        query = query.eq('subject_area.name', filters.subjectArea)
+      }
       if (filters.admissionType) {
         query = query.eq('nc_status', filters.admissionType)
       }
@@ -113,7 +182,8 @@ export default function Programmes() {
       if (error) {
         console.error('Error fetching programmes:', error)
       } else {
-        setProgrammes(data as any || [])
+        const sortedData = sortProgrammes(data as any || [], sortBy)
+        setProgrammes(sortedData)
         setTotalCount(count || 0)
       }
 
@@ -121,7 +191,7 @@ export default function Programmes() {
     }
 
     fetchProgrammes()
-  }, [searchQuery, filters])
+  }, [searchQuery, filters, sortBy])
 
   return (
     <>
@@ -143,31 +213,50 @@ export default function Programmes() {
               <FilterSidebar 
                 filters={filters}
                 onFilterChange={handleFilterChange}
-                isPremium={false}
               />
             </div>
 
             {/* Main Content */}
             <div className="lg:col-span-9">
-              {/* Search Bar */}
-              <form onSubmit={handleSearch} className="mb-8">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search programmes by name..."
-                    className="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-border bg-card focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all"
-                  />
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 bg-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+              {/* Search Bar + Sort */}
+              <div className="mb-8 space-y-4">
+                {/* Search */}
+                <form onSubmit={handleSearch}>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search programmes by name..."
+                      className="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-border bg-card focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all"
+                    />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <button
+                      type="submit"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 bg-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </form>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-3">
+                  <ArrowUpDown className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm font-semibold text-foreground/80">Sort by:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className="h-10 px-4 rounded-lg border border-border bg-card text-sm font-medium text-foreground/80 hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-all cursor-pointer appearance-none"
+                    style={{ backgroundImage: 'none', paddingRight: '1rem' }}
                   >
-                    Search
-                  </button>
+                    <option value="latest">Latest</option>
+                    <option value="name">Programme Name (A-Z)</option>
+                    <option value="city">City (A-Z)</option>
+                    <option value="university">University (A-Z)</option>
+                  </select>
                 </div>
-              </form>
+              </div>
 
               {/* Results */}
               {loading ? (
@@ -183,10 +272,31 @@ export default function Programmes() {
                       key={programme.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-card border border-border rounded-xl p-6 hover:shadow-strong transition-all duration-300 group cursor-pointer"
+                      className="bg-card border border-border rounded-xl p-6 hover:shadow-strong transition-all duration-300 group cursor-pointer relative"
+                      onClick={() => navigate(`/programmes/${programme.id}`)}
                     >
+                      {/* Bookmark Button */}
+                      <button
+                        onClick={(e) => handleToggleWatchlist(e, programme.id)}
+                        disabled={togglingId === programme.id}
+                        className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all z-10 ${
+                          watchlistStatus[programme.id]
+                            ? 'bg-accent text-white hover:bg-accent/90'
+                            : 'bg-muted hover:bg-accent/10 text-foreground/60 hover:text-accent'
+                        }`}
+                        title={watchlistStatus[programme.id] ? 'Remove from watchlist' : 'Add to watchlist'}
+                      >
+                        {togglingId === programme.id ? (
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : watchlistStatus[programme.id] ? (
+                          <BookmarkCheck className="w-5 h-5" />
+                        ) : (
+                          <Bookmark className="w-5 h-5" />
+                        )}
+                      </button>
+
                       {/* University Info */}
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-4 pr-12">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-primary mb-2 group-hover:text-accent transition-colors line-clamp-2">
                             {programme.title}
@@ -253,7 +363,6 @@ export default function Programmes() {
 
                       {/* View Details Button */}
                       <button 
-                        onClick={() => navigate(`/programmes/${programme.id}`)}
                         className="w-full py-3 bg-accent/5 text-accent font-semibold rounded-lg hover:bg-accent/10 transition-colors"
                       >
                         View Details

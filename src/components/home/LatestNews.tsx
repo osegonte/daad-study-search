@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Calendar, Tag } from 'lucide-react'
+import { Calendar, ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const fadeInUp = {
@@ -7,124 +7,136 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0 }
 }
 
-// Mock news data - will come from backend later
 const newsItems = [
   {
     id: 1,
-    category: 'Education',
-    date: '2025-01-15',
-    title: 'New Scholarship Opportunities for International Students',
-    excerpt: 'German universities announce expanded scholarship programs for the upcoming academic year, offering more support for international students.',
-    image: '/images/news-1.jpg',
-    slug: 'new-scholarship-opportunities'
+    title: 'New DAAD Scholarships for 2026',
+    excerpt: 'Applications now open for DAAD scholarships covering tuition, living expenses, and health insurance for international students.',
+    date: '2026-01-15',
+    category: 'Scholarships',
+    gradient: 'from-blue-500 to-blue-600'
   },
   {
     id: 2,
-    category: 'Visa & Immigration',
-    date: '2025-01-10',
-    title: 'Updated Student Visa Requirements for 2025',
-    excerpt: 'Recent changes to German student visa regulations make the application process more streamlined for international applicants.',
-    image: '/images/news-2.jpg',
-    slug: 'updated-visa-requirements'
+    title: 'Germany Extends Post-Study Work Visa',
+    excerpt: 'International graduates can now stay up to 18 months to find work related to their field of study.',
+    date: '2026-01-10',
+    category: 'Visa Updates',
+    gradient: 'from-green-500 to-green-600'
   },
   {
     id: 3,
-    category: 'Campus Life',
-    date: '2025-01-05',
-    title: 'Student Housing Guide: Finding Your Home in Germany',
-    excerpt: 'Essential tips and resources for international students searching for accommodation in major German university cities.',
-    image: '/images/news-3.jpg',
-    slug: 'student-housing-guide'
+    title: 'Top Universities Accepting Applications',
+    excerpt: 'Learn about the Winter 2026 application deadlines and requirements for Germany\'s leading universities.',
+    date: '2026-01-05',
+    category: 'Applications',
+    gradient: 'from-purple-500 to-purple-600'
   }
 ]
 
 export default function LatestNews() {
   const navigate = useNavigate()
 
+  function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
+  }
+
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-muted/30">
       <div className="container-custom">
+        {/* Section Header */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
           variants={fadeInUp}
-          className="text-center mb-12"
+          className="flex items-center justify-between mb-12"
         >
-          <h2 className="text-4xl font-semibold text-primary mb-4">
-            Latest News
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Stay updated with the latest information about studying in Germany
-          </p>
+          <div>
+            <h2 className="text-3xl font-semibold text-primary mb-2">
+              Latest News
+            </h2>
+            <p className="text-muted-foreground">
+              Stay updated with the latest in German higher education
+            </p>
+          </div>
+
+          <button 
+            onClick={() => navigate('/news')}
+            className="hidden md:flex items-center gap-2 text-accent font-semibold hover:gap-3 transition-all"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsItems.map((news, index) => (
+        {/* News Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {newsItems.map((item, index) => (
             <motion.article
-              key={news.id}
+              key={item.id}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               variants={fadeInUp}
-              className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-strong transition-all duration-300"
+              onClick={() => navigate('/news')}
+              className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-strong transition-all duration-300 cursor-pointer"
             >
-              {/* Image */}
-              <div className="relative h-48 bg-muted overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 group-hover:scale-105 transition-transform duration-300"
-                  style={{
-                    backgroundImage: `url(${news.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
-                />
+              {/* Category Badge on Gradient */}
+              <div className={`h-32 bg-gradient-to-br ${item.gradient} flex items-center justify-center relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-black/20" />
+                <span className="relative z-10 px-4 py-2 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold rounded-full">
+                  {item.category}
+                </span>
               </div>
 
               {/* Content */}
               <div className="p-6">
-                {/* Meta Info */}
-                <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Tag className="w-4 h-4" />
-                    <span>{news.category}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(news.date).toLocaleDateString('en-GB', { 
-                      day: '2-digit', 
-                      month: '2-digit', 
-                      year: 'numeric' 
-                    })}</span>
-                  </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(item.date)}</span>
                 </div>
 
-                {/* Title */}
-                <h3 className="text-xl font-semibold text-primary mb-3 group-hover:text-accent transition-colors line-clamp-2">
-                  {news.title}
+                <h3 className="text-lg font-semibold text-primary mb-3 group-hover:text-accent transition-colors line-clamp-2">
+                  {item.title}
                 </h3>
 
-                {/* Excerpt */}
-                <p className="text-muted-foreground mb-4 line-clamp-3">
-                  {news.excerpt}
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+                  {item.excerpt}
                 </p>
 
-                {/* Read More Button */}
-                <button
-                  onClick={() => navigate(`/news/${news.slug}`)}
-                  className="inline-flex items-center gap-2 text-accent font-semibold hover:gap-3 transition-all"
-                >
-                  Read More
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <button className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
+                  <span>Read More</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </motion.article>
           ))}
         </div>
+
+        {/* Mobile View All Button */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          variants={fadeInUp}
+          className="mt-8 text-center md:hidden"
+        >
+          <button 
+            onClick={() => navigate('/news')}
+            className="inline-flex items-center gap-2 text-accent font-semibold hover:gap-3 transition-all"
+          >
+            <span>View All News</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </motion.div>
       </div>
     </section>
   )

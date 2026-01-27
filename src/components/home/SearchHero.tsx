@@ -30,9 +30,9 @@ export default function SearchHero() {
     e.preventDefault()
     const params = new URLSearchParams()
     if (searchQuery) params.set('query', searchQuery)
-    if (courseType) params.set('type', courseType)
+    if (courseType) params.set('courseType', courseType)
     if (language) params.set('language', language)
-    if (subject) params.set('subject', subject)
+    if (subject) params.set('subjectArea', subject)
     
     navigate(`/programmes?${params.toString()}`)
   }
@@ -98,9 +98,9 @@ export default function SearchHero() {
               }}
             >
               <option value="">Course Type</option>
-              <option value="preparatory">Preparatory Course</option>
-              <option value="bachelor">Bachelor's Degree</option>
-              <option value="master">Master's Degree</option>
+              <option value="Preparatory">Preparatory Course</option>
+              <option value="Bachelor">Bachelor's Degree</option>
+              <option value="Master">Master's Degree</option>
             </select>
 
             <select
@@ -113,9 +113,9 @@ export default function SearchHero() {
               }}
             >
               <option value="">Language</option>
-              <option value="german">German Only</option>
-              <option value="english">English Only</option>
-              <option value="both">German & English</option>
+              <option value="German">German Only</option>
+              <option value="English">English Only</option>
+              <option value="German & English">German & English</option>
             </select>
 
             <select
@@ -128,15 +128,16 @@ export default function SearchHero() {
               }}
             >
               <option value="">Subject Area</option>
-              <option value="engineering">Engineering</option>
-              <option value="business">Business</option>
-              <option value="computer">Computer Science</option>
-              <option value="medicine">Medicine</option>
-              <option value="arts">Arts</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Business">Business</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Medicine">Medicine</option>
+              <option value="Arts">Arts</option>
             </select>
 
             <button
               onClick={() => navigate('/programmes')}
+              type="button"
               className="h-11 px-6 rounded-lg border border-accent/30 bg-accent/5 text-accent text-sm font-semibold hover:bg-accent/10 transition-all"
             >
               More Filters →

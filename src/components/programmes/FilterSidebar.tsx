@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { Lock } from 'lucide-react'
+import { Lock, Crown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 
 type FilterSidebarProps = {
   filters: {
@@ -14,10 +16,12 @@ type FilterSidebarProps = {
     tuitionFees: string
   }
   onFilterChange: (filterName: string, value: string) => void
-  isPremium?: boolean
 }
 
-export default function FilterSidebar({ filters, onFilterChange, isPremium = false }: FilterSidebarProps) {
+export default function FilterSidebar({ filters, onFilterChange }: FilterSidebarProps) {
+  const navigate = useNavigate()
+  const { isPremium } = useAuth()
+
   const FilterSelect = ({ 
     label, 
     name, 
@@ -201,8 +205,16 @@ export default function FilterSidebar({ filters, onFilterChange, isPremium = fal
           <h3 className="text-sm font-semibold text-accent uppercase tracking-wide">
             Premium Filters
           </h3>
-          {!isPremium && (
-            <button className="text-xs font-semibold text-accent hover:underline">
+          {isPremium ? (
+            <span className="flex items-center gap-1 text-xs text-accent font-semibold">
+              <Crown className="w-3 h-3" />
+              Unlocked
+            </span>
+          ) : (
+            <button 
+              onClick={() => navigate('/upgrade')}
+              className="text-xs font-semibold text-accent hover:underline"
+            >
               Upgrade
             </button>
           )}
@@ -210,9 +222,15 @@ export default function FilterSidebar({ filters, onFilterChange, isPremium = fal
 
         {!isPremium && (
           <div className="mb-4 p-3 bg-accent/5 border border-accent/20 rounded-lg">
-            <p className="text-xs text-foreground/70">
+            <p className="text-xs text-foreground/70 mb-2">
               Unlock advanced filters to find your perfect programme faster
             </p>
+            <button
+              onClick={() => navigate('/upgrade')}
+              className="text-xs font-semibold text-accent hover:underline"
+            >
+              Learn more →
+            </button>
           </div>
         )}
 

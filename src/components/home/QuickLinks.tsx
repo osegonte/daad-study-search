@@ -11,25 +11,25 @@ const links = [
     title: 'University Programmes',
     description: 'Browse all available study programmes',
     href: '/programmes',
-    image: '/images/university.jpg' // Placeholder - will add default gradient
+    gradient: 'from-accent/30 via-accent/20 to-accent/10'
   },
   {
     title: 'Requirements & Enrollment',
     description: 'Learn about admission requirements',
     href: '/requirements',
-    image: '/images/requirements.jpg'
+    gradient: 'from-blue-200/40 via-blue-100/30 to-blue-50/20'
   },
   {
     title: 'Living in Germany',
     description: 'Student life and practical information',
     href: '/living',
-    image: '/images/living.jpg'
+    gradient: 'from-purple-200/40 via-purple-100/30 to-purple-50/20'
   },
   {
     title: 'Work & Career',
     description: 'Career preparation and opportunities',
     href: '/career',
-    image: '/images/career.jpg'
+    gradient: 'from-orange-200/40 via-orange-100/30 to-orange-50/20'
   }
 ]
 
@@ -67,15 +67,8 @@ export default function QuickLinks() {
               onClick={() => navigate(link.href)}
               className="group relative h-64 rounded-xl overflow-hidden shadow-medium hover:shadow-strong transition-all"
             >
-              {/* Background Image with Gradient Overlay */}
-              <div 
-                className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/5"
-                style={{
-                  backgroundImage: `url(${link.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
+              {/* Gradient Background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${link.gradient}`}>
                 {/* Dark overlay for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent group-hover:from-accent/80 group-hover:via-accent/40 transition-all duration-300" />
               </div>

@@ -14,9 +14,12 @@ import {
   CheckCircle2,
   XCircle,
   Bookmark,
+  BookmarkCheck,
   ExternalLink,
   Euro
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { toggleWatchlist, isInWatchlist } from '../lib/watchlist'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 
@@ -53,8 +56,11 @@ type ProgrammeDetail = {
 export default function ProgrammeDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [programme, setProgramme] = useState<ProgrammeDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [inWatchlist, setInWatchlist] = useState(false)
+  const [togglingWatchlist, setTogglingWatchlist] = useState(false)
 
   useEffect(() => {
     async function fetchProgramme() {
@@ -74,13 +80,38 @@ export default function ProgrammeDetail() {
         console.error('Error fetching programme:', error)
       } else {
         setProgramme(data as any)
+        
+        // Check watchlist status
+        if (user && data) {
+          const status = await isInWatchlist(user.id, data.id)
+          setInWatchlist(status)
+        }
       }
 
       setLoading(false)
     }
 
     fetchProgramme()
-  }, [id])
+  }, [id, user])
+
+  async function handleToggleWatchlist() {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    if (!programme) return
+
+    setTogglingWatchlist(true)
+
+    const { success } = await toggleWatchlist(user.id, programme.id)
+
+    if (success) {
+      setInWatchlist(!inWatchlist)
+    }
+
+    setTogglingWatchlist(false)
+  }
 
   if (loading) {
     return (
@@ -202,8 +233,23 @@ export default function ProgrammeDetail() {
                     </div>
                   </div>
                   
-                  <button className="p-3 rounded-full bg-muted hover:bg-accent/10 hover:text-accent transition-colors">
-                    <Bookmark className="w-6 h-6" />
+                  <button 
+                    onClick={handleToggleWatchlist}
+                    disabled={togglingWatchlist}
+                    className={`p-3 rounded-full transition-all ${
+                      inWatchlist
+                        ? 'bg-accent text-white hover:bg-accent/90'
+                        : 'bg-muted hover:bg-accent/10 text-foreground/60 hover:text-accent'
+                    }`}
+                    title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+                  >
+                    {togglingWatchlist ? (
+                      <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : inWatchlist ? (
+                      <BookmarkCheck className="w-6 h-6" />
+                    ) : (
+                      <Bookmark className="w-6 h-6" />
+                    )}
                   </button>
                 </div>
 
@@ -362,9 +408,31 @@ export default function ProgrammeDetail() {
                   Apply Now
                 </button>
 
-                <button className="w-full mt-3 py-4 border-2 border-border text-foreground font-semibold rounded-lg hover:bg-muted transition-colors flex items-center justify-center gap-2">
-                  <Bookmark className="w-5 h-5" />
-                  Save to Watchlist
+                <button 
+                  onClick={handleToggleWatchlist}
+                  disabled={togglingWatchlist}
+                  className={`w-full mt-3 py-4 font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                    inWatchlist
+                      ? 'bg-accent/10 text-accent border-2 border-accent hover:bg-accent/20'
+                      : 'border-2 border-border text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {togglingWatchlist ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : inWatchlist ? (
+                    <>
+                      <BookmarkCheck className="w-5 h-5" />
+                      <span>Saved to Watchlist</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="w-5 h-5" />
+                      <span>Save to Watchlist</span>
+                    </>
+                  )}
                 </button>
               </motion.div>
             </div>
