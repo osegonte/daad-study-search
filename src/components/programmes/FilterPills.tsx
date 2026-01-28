@@ -282,7 +282,6 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
             })
             setActiveModal(null)
           }}
-          isPremium
           anchorElement={anchorElement}
         />
       )}
