@@ -1,4 +1,4 @@
-// src/components/programmes/FilterModal.tsx - COMPLETE FILE
+// src/components/programmes/FilterModal.tsx - COMPLETE FILE (remove isPremium param)
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Search, ChevronRight } from 'lucide-react'
@@ -11,7 +11,6 @@ type FilterModalProps = {
   selectedValues: string[]
   onApply: (values: string[]) => void
   hasSearch?: boolean
-  isPremium?: boolean
   anchorElement?: HTMLElement | null
 }
 
@@ -23,7 +22,6 @@ export default function FilterModal({
   selectedValues,
   onApply,
   hasSearch = false,
-  isPremium = false,
   anchorElement
 }: FilterModalProps) {
   const [tempSelected, setTempSelected] = useState<string[]>(selectedValues)

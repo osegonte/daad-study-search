@@ -1,5 +1,5 @@
 // src/pages/Requirements.tsx - NEW FILE
-import { CheckCircle, AlertCircle, FileText, GraduationCap, Globe, Calendar } from 'lucide-react'
+import { CheckCircle, AlertCircle, FileText, GraduationCap, Globe } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Requirements() {
