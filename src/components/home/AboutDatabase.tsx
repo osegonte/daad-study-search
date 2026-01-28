@@ -1,140 +1,109 @@
-import { motion } from 'framer-motion'
-import { Database, Users, Building2, TrendingUp } from 'lucide-react'
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
-}
-
-const stats = [
-  {
-    icon: Building2,
-    value: '100+',
-    label: 'Universities',
-    description: 'Partner institutions across Germany'
-  },
-  {
-    icon: Database,
-    value: '1,400+',
-    label: 'Programmes',
-    description: 'Study programmes available'
-  },
-  {
-    icon: Users,
-    value: '50,000+',
-    label: 'Students',
-    description: 'Helped find their perfect programme'
-  },
-  {
-    icon: TrendingUp,
-    value: '95%',
-    label: 'Success Rate',
-    description: 'Students accepted to their top choice'
-  }
-]
+// src/components/home/AboutDatabase.tsx - COMPLETE FILE
+import { Database, Shield, Filter, CheckCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function AboutDatabase() {
   return (
-    <section className="py-20 bg-muted/30">
-      <div className="container-custom">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          variants={fadeInUp}
-          className="max-w-4xl mx-auto"
-        >
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-semibold text-primary mb-4">
-              About This Database
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Your comprehensive guide to finding the perfect study programme in Germany. 
-              We've carefully curated and verified information from universities across the country 
-              to help international students make informed decisions about their academic future.
-            </p>
+    <section className="py-20 px-6 bg-background">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            Find study programmes in Germany with clarity and confidence
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            Trusted by students from over 150 countries
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              to="/programmes"
+              className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              Explore Programmes
+            </Link>
+            <Link
+              to="/requirements"
+              className="px-8 py-3 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent hover:text-white transition-all"
+            >
+              Check Requirements
+            </Link>
           </div>
+        </div>
 
-          {/* Description */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            variants={fadeInUp}
-            className="bg-card border border-border rounded-xl p-8 mb-12"
-          >
-            <h3 className="text-xl font-semibold text-primary mb-4">
-              What Makes Us Different
+        {/* Features */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-card border border-border rounded-xl p-8 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <Database className="w-6 h-6 text-accent" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-4">
+              Programme-Specific Requirements
             </h3>
-            <div className="space-y-4 text-foreground/80 leading-relaxed">
-              <p>
-                Unlike generic search engines, we specialize exclusively in German university programmes 
-                for international students. Our database is regularly updated with the latest admission 
-                requirements, language prerequisites, and application deadlines.
-              </p>
-              <p>
-                We go beyond basic programme listings by providing detailed information about admission 
-                requirements including NC status, ECTS requirements, motivation letter needs, entrance 
-                tests, and interview processes - helping you understand exactly what's needed before you apply.
-              </p>
-              <p>
-                Our premium filters give you advanced search capabilities to find programmes that match 
-                your specific qualifications and preferences, saving you hours of research time.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                variants={fadeInUp}
-                className="bg-card border border-border rounded-xl p-6 text-center hover:shadow-medium transition-shadow"
-              >
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
-                  <stat.icon className="w-6 h-6 text-accent" />
-                </div>
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm font-semibold text-foreground/80 mb-1">
-                  {stat.label}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {stat.description}
-                </div>
-              </motion.div>
-            ))}
+            <p className="text-muted-foreground leading-relaxed">
+              Get detailed admission requirements for each programme, not just general university information. Know exactly what you need before applying.
+            </p>
           </div>
 
-          {/* Trust Badges */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            variants={fadeInUp}
-            className="mt-12 text-center"
-          >
-            <p className="text-sm text-muted-foreground mb-4">
-              Trusted by students from over 150 countries
-            </p>
-            <div className="flex flex-wrap justify-center gap-6 text-muted-foreground/60">
-              <span className="text-xs">✓ Verified Information</span>
-              <span className="text-xs">✓ Regular Updates</span>
-              <span className="text-xs">✓ Student-Focused</span>
-              <span className="text-xs">✓ Free Access</span>
+          <div className="bg-card border border-border rounded-xl p-8 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <Shield className="w-6 h-6 text-accent" />
             </div>
-          </motion.div>
-        </motion.div>
+            <h3 className="text-xl font-bold text-foreground mb-4">
+              Built for International Students
+            </h3>
+            <p className="text-muted-foreground leading-relaxed">
+              We understand the unique challenges international students face. Our platform is designed specifically to address these needs with verified, up-to-date information.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-8 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-6">
+              <Filter className="w-6 h-6 text-accent" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-4">
+              Smart Time-Saving Filters
+            </h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Find programmes that match your qualifications in seconds. Filter by language, subject, admission type, and more to discover your perfect match.
+            </p>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-accent mb-2">100+</div>
+            <div className="text-muted-foreground">Universities</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-accent mb-2">1,400+</div>
+            <div className="text-muted-foreground">Programmes</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-accent mb-2">10,000+</div>
+            <div className="text-muted-foreground">Students</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-accent mb-2">90%</div>
+            <div className="text-muted-foreground">Success Rate</div>
+          </div>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
+            <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+            <span className="text-sm font-medium text-foreground">Verified information</span>
+          </div>
+          <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
+            <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+            <span className="text-sm font-medium text-foreground">Regular updates</span>
+          </div>
+          <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
+            <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+            <span className="text-sm font-medium text-foreground">Student-focused design</span>
+          </div>
+        </div>
       </div>
     </section>
   )

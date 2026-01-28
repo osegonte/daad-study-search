@@ -1,7 +1,9 @@
+// src/components/programmes/FilterSidebar.tsx - COMPLETE FILE
 import { motion } from 'framer-motion'
-import { Lock, Crown } from 'lucide-react'
+import { Lock, Crown, ChevronDown, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useState } from 'react'
 
 type FilterSidebarProps = {
   filters: {
@@ -21,40 +23,114 @@ type FilterSidebarProps = {
 export default function FilterSidebar({ filters, onFilterChange }: FilterSidebarProps) {
   const navigate = useNavigate()
   const { isPremium } = useAuth()
+  const [subjectSearch, setSubjectSearch] = useState('')
+  const [expandedSections, setExpandedSections] = useState({
+    programmeType: true,
+    details: true,
+    requirements: true,
+    premium: true
+  })
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
+  }
+
+  const subjectOptions = [
+    { value: 'Agriculture', label: 'Agriculture' },
+    { value: 'Arts', label: 'Arts' },
+    { value: 'Biochemistry', label: 'Biochemistry' },
+    { value: 'Biology', label: 'Biology' },
+    { value: 'Business', label: 'Business' },
+    { value: 'Chemistry', label: 'Chemistry' },
+    { value: 'Communication', label: 'Communication' },
+    { value: 'Computer Science', label: 'Computer Science' },
+    { value: 'Economics', label: 'Economics' },
+    { value: 'Education', label: 'Education' },
+    { value: 'Engineering', label: 'Engineering' },
+    { value: 'Environmental Science', label: 'Environmental Science' },
+    { value: 'Food and Beverage', label: 'Food and Beverage' },
+    { value: 'Health', label: 'Health' },
+    { value: 'Literature', label: 'Literature' },
+    { value: 'Medicine', label: 'Medicine' },
+    { value: 'Philosophy', label: 'Philosophy' },
+    { value: 'Physics', label: 'Physics' },
+    { value: 'Psychology', label: 'Psychology' },
+    { value: 'Social Science', label: 'Social Science' },
+    { value: 'Mathematics', label: 'Mathematics' }
+  ]
+
+  const filteredSubjects = subjectOptions.filter(opt => 
+    opt.label.toLowerCase().includes(subjectSearch.toLowerCase())
+  )
 
   const FilterSelect = ({ 
     label, 
     name, 
     value, 
     options, 
-    isPremiumFilter = false 
+    isPremiumFilter = false,
+    hasSearch = false
   }: { 
     label: string
     name: string
     value: string
     options: { value: string; label: string }[]
     isPremiumFilter?: boolean
+    hasSearch?: boolean
   }) => {
     const isLocked = isPremiumFilter && !isPremium
 
+    if (hasSearch) {
+      return (
+        <div className="mb-5">
+          <label className="flex items-center justify-between text-sm font-semibold text-primary mb-2">
+            <span>{label}</span>
+          </label>
+          
+          {/* Search Box */}
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={subjectSearch}
+              onChange={(e) => setSubjectSearch(e.target.value)}
+              placeholder="Search subjects..."
+              className="w-full h-10 pl-10 pr-4 rounded-lg border border-border bg-background text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-all"
+            />
+          </div>
+
+          <select
+            value={value}
+            onChange={(e) => onFilterChange(name, e.target.value)}
+            className="w-full h-11 px-4 rounded-lg border border-border bg-card text-sm hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 cursor-pointer transition-all appearance-none"
+            style={{ backgroundImage: 'none', paddingRight: '1rem' }}
+          >
+            <option value="">All {label}</option>
+            {filteredSubjects.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )
+    }
+
     return (
-      <div className="mb-4">
+      <div className="mb-5">
         <label className="flex items-center justify-between text-sm font-semibold text-primary mb-2">
           <span>{label}</span>
           {isLocked && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Lock className="w-3 h-3" />
-              Premium
-            </span>
+            <Lock className="w-3.5 h-3.5 text-muted-foreground" />
           )}
         </label>
         <select
           value={value}
           onChange={(e) => onFilterChange(name, e.target.value)}
           disabled={isLocked}
-          className={`w-full h-11 px-4 rounded-lg border text-sm appearance-none transition-all ${
+          className={`w-full h-11 px-4 rounded-lg border text-sm transition-all appearance-none ${
             isLocked
-              ? 'bg-muted/50 border-border cursor-not-allowed opacity-60'
+              ? 'bg-muted/50 border-border cursor-not-allowed opacity-50'
               : 'bg-card border-border hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 cursor-pointer'
           }`}
           style={{ backgroundImage: 'none', paddingRight: '1rem' }}
@@ -70,20 +146,53 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
     )
   }
 
+  const CollapsibleSection = ({ 
+    title, 
+    sectionKey, 
+    children 
+  }: { 
+    title: string
+    sectionKey: keyof typeof expandedSections
+    children: React.ReactNode 
+  }) => {
+    const isExpanded = expandedSections[sectionKey]
+
+    return (
+      <div className="mb-6">
+        <button
+          onClick={() => toggleSection(sectionKey)}
+          className="flex items-center justify-between w-full text-sm font-semibold text-primary uppercase tracking-wide mb-4 hover:text-accent transition-colors"
+        >
+          <span>{title}</span>
+          <ChevronDown 
+            className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+          />
+        </button>
+        
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <motion.aside
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-card border border-border rounded-xl p-6 sticky top-32 max-h-[calc(100vh-10rem)] overflow-y-auto"
+      className="bg-card border border-border rounded-xl p-6 sticky top-32 max-h-[calc(100vh-10rem)] overflow-y-auto scrollbar-hide"
     >
       <h2 className="text-xl font-semibold text-primary mb-6">Filters</h2>
 
-      {/* FREE FILTERS */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-accent uppercase tracking-wide mb-4">
-          Basic Filters
-        </h3>
-
+      {/* Programme Type Section */}
+      <CollapsibleSection title="Programme Type" sectionKey="programmeType">
         <FilterSelect
           label="Course Type"
           name="courseType"
@@ -110,41 +219,16 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
           label="Subject Area"
           name="subjectArea"
           value={filters.subjectArea}
-          options={[
-            { value: 'Agriculture', label: 'Agriculture' },
-            { value: 'Arts', label: 'Arts' },
-            { value: 'Biochemistry', label: 'Biochemistry' },
-            { value: 'Biology', label: 'Biology' },
-            { value: 'Business', label: 'Business' },
-            { value: 'Chemistry', label: 'Chemistry' },
-            { value: 'Communication', label: 'Communication' },
-            { value: 'Computer Science', label: 'Computer Science' },
-            { value: 'Economics', label: 'Economics' },
-            { value: 'Education', label: 'Education' },
-            { value: 'Engineering', label: 'Engineering' },
-            { value: 'Environmental Science', label: 'Environmental Science' },
-            { value: 'Food and Beverage', label: 'Food and Beverage' },
-            { value: 'Health', label: 'Health' },
-            { value: 'Literature', label: 'Literature' },
-            { value: 'Medicine', label: 'Medicine' },
-            { value: 'Philosophy', label: 'Philosophy' },
-            { value: 'Physics', label: 'Physics' },
-            { value: 'Psychology', label: 'Psychology' },
-            { value: 'Social Science', label: 'Social Science' },
-            { value: 'Mathematics', label: 'Mathematics' }
-          ]}
+          options={subjectOptions}
+          hasSearch={true}
         />
+      </CollapsibleSection>
 
-        <FilterSelect
-          label="Admission Type"
-          name="admissionType"
-          value={filters.admissionType}
-          options={[
-            { value: 'non-restricted (ohne NC)', label: 'Non-restricted (ohne NC)' },
-            { value: 'restricted (NC)', label: 'Restricted (NC)' }
-          ]}
-        />
+      {/* Divider */}
+      <div className="h-px bg-border mb-6" />
 
+      {/* Programme Details Section */}
+      <CollapsibleSection title="Programme Details" sectionKey="details">
         <FilterSelect
           label="Beginning Semester"
           name="beginning"
@@ -164,6 +248,22 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
             { value: 'Full-time', label: 'Fully On-site' },
             { value: 'Hybrid', label: 'Hybrid' },
             { value: 'Online', label: 'Fully Online' }
+          ]}
+        />
+      </CollapsibleSection>
+
+      {/* Divider */}
+      <div className="h-px bg-border mb-6" />
+
+      {/* Requirements & Costs Section */}
+      <CollapsibleSection title="Requirements & Costs" sectionKey="requirements">
+        <FilterSelect
+          label="Admission Type"
+          name="admissionType"
+          value={filters.admissionType}
+          options={[
+            { value: 'non-restricted (ohne NC)', label: 'Non-restricted (ohne NC)' },
+            { value: 'restricted (NC)', label: 'Restricted (NC)' }
           ]}
         />
 
@@ -197,39 +297,34 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
             { value: 'false', label: 'No' }
           ]}
         />
-      </div>
+      </CollapsibleSection>
 
-      {/* PREMIUM FILTERS */}
-      <div className="pt-6 border-t border-border">
+      {/* Divider */}
+      <div className="h-px bg-border mb-6" />
+
+      {/* Premium Section */}
+      <CollapsibleSection title="Premium Filters" sectionKey="premium">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-accent uppercase tracking-wide">
-            Premium Filters
-          </h3>
-          {isPremium ? (
-            <span className="flex items-center gap-1 text-xs text-accent font-semibold">
-              <Crown className="w-3 h-3" />
-              Unlocked
-            </span>
-          ) : (
-            <button 
-              onClick={() => navigate('/upgrade')}
-              className="text-xs font-semibold text-accent hover:underline"
-            >
-              Upgrade
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            <Crown className="w-4 h-4 text-accent" />
+            {isPremium && (
+              <span className="text-xs font-semibold text-accent">
+                Unlocked
+              </span>
+            )}
+          </div>
         </div>
 
         {!isPremium && (
-          <div className="mb-4 p-3 bg-accent/5 border border-accent/20 rounded-lg">
-            <p className="text-xs text-foreground/70 mb-2">
+          <div className="mb-6 p-4 bg-accent/5 border border-accent/20 rounded-lg">
+            <p className="text-xs text-foreground/70 leading-relaxed mb-3">
               Unlock advanced filters to find your perfect programme faster
             </p>
             <button
               onClick={() => navigate('/upgrade')}
-              className="text-xs font-semibold text-accent hover:underline"
+              className="w-full h-9 bg-accent text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
             >
-              Learn more →
+              Upgrade to Premium
             </button>
           </div>
         )}
@@ -291,14 +386,15 @@ export default function FilterSidebar({ filters, onFilterChange }: FilterSidebar
           ]}
           isPremiumFilter
         />
-      </div>
+      </CollapsibleSection>
 
       {/* Clear Filters Button */}
       <button
         onClick={() => {
           Object.keys(filters).forEach(key => onFilterChange(key, ''))
+          setSubjectSearch('')
         }}
-        className="w-full mt-6 py-3 border border-border text-foreground/70 font-semibold rounded-lg hover:bg-muted transition-colors"
+        className="w-full mt-6 py-3 border border-border text-foreground/70 font-semibold rounded-lg hover:bg-muted hover:border-accent/30 transition-all"
       >
         Clear All Filters
       </button>

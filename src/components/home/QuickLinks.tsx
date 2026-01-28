@@ -1,3 +1,4 @@
+// src/components/home/QuickLinks.tsx
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
@@ -39,22 +40,6 @@ export default function QuickLinks() {
   return (
     <section className="py-16 bg-background">
       <div className="container-custom">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          variants={fadeInUp}
-          className="text-center mb-10"
-        >
-          <h2 className="text-3xl font-semibold text-primary mb-3">
-            Quick Links to Information
-          </h2>
-          <p className="text-muted-foreground">
-            Everything you need to know about studying in Germany
-          </p>
-        </motion.div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {links.map((link, index) => (
             <motion.button

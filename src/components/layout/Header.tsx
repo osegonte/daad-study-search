@@ -1,303 +1,227 @@
-import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+// src/components/layout/Header.tsx - COMPLETE FILE
 import { useState } from 'react'
-import { Menu, X, User, Search, LogOut, Bookmark, Crown } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Menu, X, User, LogOut, Heart, Crown } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const { user, isPremium, signOut } = useAuth()
   const navigate = useNavigate()
-  const { user, signOut, isPremium } = useAuth()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-
-  const handleNavClick = (href: string) => {
-    setIsMobileMenuOpen(false)
-    setIsUserMenuOpen(false)
-    
-    if (href.startsWith('#')) {
-      const element = document.querySelector(href)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    } else {
-      navigate(href)
-      window.scrollTo(0, 0)
-    }
-  }
 
   const handleSignOut = async () => {
     await signOut()
-    setIsUserMenuOpen(false)
     navigate('/')
+    setProfileMenuOpen(false)
   }
 
+  const navItems = [
+    { name: 'Programmes', path: '/programmes' },
+    { name: 'News', path: '/news' },
+    { name: 'About', path: '/about' }
+  ]
+
   return (
-    <>
-      <motion.header 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border"
-      >
-        <div className="container-custom h-24 flex items-center justify-between">
-          {/* Logo - Left */}
-          <button 
-            onClick={() => handleNavClick('/')}
-            className="flex items-center gap-3 group"
-          >
-            <svg 
-              width="44" 
-              height="44" 
-              viewBox="0 0 44 44" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="transition-transform group-hover:scale-105"
-            >
-              <circle cx="22" cy="22" r="22" fill="#6B9F7F"/>
-              <path 
-                d="M22 12C16.48 12 12 16.48 12 22C12 27.52 16.48 32 22 32C27.52 32 32 27.52 32 22C32 16.48 27.52 12 22 12ZM22 28C18.69 28 16 25.31 16 22C16 18.69 18.69 16 22 16C25.31 16 28 18.69 28 22C28 25.31 25.31 28 22 28Z" 
-                fill="white"
-              />
-              <circle cx="22" cy="22" r="4" fill="white"/>
-            </svg>
-            
-            <span className="text-2xl font-semibold text-primary group-hover:text-accent transition-colors tracking-tight">
-              StudyGermany
-            </span>
-          </button>
-          
-          {/* Desktop Navigation - CENTERED */}
-          <nav className="hidden lg:flex items-center gap-12 absolute left-1/2 -translate-x-1/2">
-            <button 
-              onClick={() => handleNavClick('/programmes')}
-              className="text-[15px] font-semibold text-foreground/80 hover:text-accent transition-colors relative group"
-            >
-              Programmes
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
-            </button>
-            
-            <button 
-              onClick={() => handleNavClick('/services')}
-              className="text-[15px] font-semibold text-foreground/80 hover:text-accent transition-colors relative group"
-            >
-              Services
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
-            </button>
-            
-            <button 
-              onClick={() => handleNavClick('/news')}
-              className="text-[15px] font-semibold text-foreground/80 hover:text-accent transition-colors relative group"
-            >
-              News
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
-            </button>
-          </nav>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">SG</span>
+          </div>
+          <span className="font-bold text-xl text-foreground">Study Germany</span>
+        </Link>
 
-          {/* Right Side - Search Icon + User Menu */}
-          <div className="flex items-center gap-2">
-            {/* Search Icon */}
-            <button 
-              onClick={() => handleNavClick('/programmes')}
-              className="hidden lg:flex w-11 h-11 items-center justify-center rounded-full hover:bg-accent/10 text-foreground/70 hover:text-accent transition-all group"
-              aria-label="Search"
+        {/* Desktop Navigation - Centered */}
+        <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className="text-sm font-medium text-foreground hover:text-accent transition-colors"
             >
-              <Search className="w-5 h-5 transition-transform group-hover:scale-110" />
-            </button>
+              {item.name}
+            </Link>
+          ))}
+        </div>
 
-            {/* User Menu / Login Button */}
-            {user ? (
-              <div className="relative">
-                <button 
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="hidden lg:flex w-11 h-11 items-center justify-center rounded-full bg-accent/10 text-accent hover:bg-accent hover:text-white transition-all group"
-                  aria-label="User menu"
-                >
-                  {isPremium ? (
-                    <Crown className="w-5 h-5" />
-                  ) : (
-                    <User className="w-5 h-5" />
-                  )}
-                </button>
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span className="text-sm font-medium">{user.email}</span>
+                {isPremium && <Crown className="w-4 h-4 text-accent" />}
+              </button>
 
-                {/* Dropdown Menu */}
-                {isUserMenuOpen && (
+              <AnimatePresence>
+                {profileMenuOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setIsUserMenuOpen(false)}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setProfileMenuOpen(false)}
                     />
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-strong overflow-hidden z-50"
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50"
                     >
-                      {/* User Info */}
-                      <div className="px-4 py-3 border-b border-border bg-muted/30">
-                        <p className="text-sm font-semibold text-primary truncate">
-                          {user.email}
-                        </p>
-                        {isPremium && (
-                          <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-accent/10 text-accent text-xs font-semibold rounded-full">
-                            <Crown className="w-3 h-3" />
-                            Premium Member
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Menu Items */}
-                      <div className="py-2">
-                        <button
-                          onClick={() => handleNavClick('/watchlist')}
-                          className="w-full px-4 py-2 flex items-center gap-3 text-sm text-foreground/80 hover:bg-accent/5 hover:text-accent transition-colors"
+                      <Link
+                        to="/profile"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                      >
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Profile</span>
+                      </Link>
+                      <Link
+                        to="/watchlist"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                      >
+                        <Heart className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Watchlist</span>
+                      </Link>
+                      {!isPremium && (
+                        <Link
+                          to="/upgrade"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-t border-border"
                         >
-                          <Bookmark className="w-4 h-4" />
-                          My Watchlist
-                        </button>
-
-                        {!isPremium && (
-                          <button
-                            onClick={() => handleNavClick('/upgrade')}
-                            className="w-full px-4 py-2 flex items-center gap-3 text-sm text-accent hover:bg-accent/5 transition-colors"
-                          >
-                            <Crown className="w-4 h-4" />
-                            Upgrade to Premium
-                          </button>
-                        )}
-
-                        <div className="my-2 border-t border-border" />
-
-                        <button
-                          onClick={handleSignOut}
-                          className="w-full px-4 py-2 flex items-center gap-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Sign Out
-                        </button>
-                      </div>
+                          <Crown className="w-4 h-4 text-accent" />
+                          <span className="text-sm font-medium text-accent">Upgrade to Premium</span>
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-t border-border"
+                      >
+                        <LogOut className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Sign Out</span>
+                      </button>
                     </motion.div>
                   </>
                 )}
-              </div>
-            ) : (
-              <button 
-                onClick={() => handleNavClick('/login')}
-                className="hidden lg:flex h-11 px-6 items-center justify-center rounded-full bg-accent text-white font-semibold hover:opacity-90 transition-opacity"
+              </AnimatePresence>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
               >
                 Sign In
-              </button>
-            )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
-              aria-label="Open menu"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+              </Link>
+              <Link
+                to="/register"
+                className="px-6 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
-      </motion.header>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+        >
+          {mobileMenuOpen ? (
+            <X className="w-5 h-5 text-foreground" />
+          ) : (
+            <Menu className="w-5 h-5 text-foreground" />
+          )}
+        </button>
+      </nav>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <>
+      <AnimatePresence>
+        {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
-          />
-
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-[320px] bg-card shadow-strong z-50 lg:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-border bg-background"
           >
-            <div className="flex items-center justify-between p-6 border-b border-border/50">
-              <span className="font-semibold text-lg text-primary">Menu</span>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-              >
-                <X className="w-5 h-5 text-foreground/70" />
-              </button>
-            </div>
+            <div className="px-6 py-4 space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
 
-            <nav className="flex flex-col p-6 space-y-2">
-              {user && (
-                <>
-                  <div className="px-5 py-3 bg-muted/50 rounded-xl mb-4">
-                    <p className="text-xs text-muted-foreground mb-1">Signed in as</p>
-                    <p className="text-sm font-semibold text-primary truncate">{user.email}</p>
-                    {isPremium && (
-                      <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 bg-accent/10 text-accent text-xs font-semibold rounded-full">
-                        <Crown className="w-3 h-3" />
-                        Premium
-                      </span>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => handleNavClick('/watchlist')}
-                    className="px-5 py-4 flex items-center gap-3 text-foreground/80 hover:text-accent hover:bg-accent/5 rounded-xl transition-all font-semibold"
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    <span>My Watchlist</span>
-                  </button>
-
-                  <div className="h-px bg-border/50 my-2" />
-                </>
-              )}
-
-              <button
-                onClick={() => handleNavClick('/programmes')}
-                className="px-5 py-4 flex items-center gap-3 text-foreground/80 hover:text-accent hover:bg-accent/5 rounded-xl transition-all font-semibold"
-              >
-                <Search className="w-5 h-5" />
-                <span>Search Programmes</span>
-              </button>
-              
-              <button
-                onClick={() => handleNavClick('/services')}
-                className="px-5 py-4 text-left text-foreground/80 hover:text-accent hover:bg-accent/5 rounded-xl transition-all font-semibold"
-              >
-                Services
-              </button>
-              
-              <button
-                onClick={() => handleNavClick('/news')}
-                className="px-5 py-4 text-left text-foreground/80 hover:text-accent hover:bg-accent/5 rounded-xl transition-all font-semibold"
-              >
-                News
-              </button>
-              
-              <div className="h-px bg-border/50 my-4" />
-              
               {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="px-5 py-4 flex items-center gap-3 text-red-600 hover:bg-red-50 rounded-xl transition-all font-semibold"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Sign Out</span>
-                </button>
+                <>
+                  <div className="border-t border-border my-2 pt-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-4 py-2 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/watchlist"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-4 py-2 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                    >
+                      Watchlist
+                    </Link>
+                    {!isPremium && (
+                      <Link
+                        to="/upgrade"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 text-base font-medium text-accent hover:bg-muted rounded-lg transition-colors"
+                      >
+                        Upgrade to Premium
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleSignOut()
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full text-left px-4 py-2 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </>
               ) : (
-                <button
-                  onClick={() => handleNavClick('/login')}
-                  className="px-5 py-4 flex items-center gap-3 text-accent hover:bg-accent/5 rounded-xl transition-all font-semibold"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Sign In</span>
-                </button>
+                <div className="border-t border-border my-2 pt-2 space-y-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 bg-accent text-white rounded-lg text-base font-medium hover:opacity-90 transition-opacity text-center"
+                  >
+                    Get Started
+                  </Link>
+                </div>
               )}
-            </nav>
+            </div>
           </motion.div>
-        </>
-      )}
-    </>
+        )}
+      </AnimatePresence>
+    </header>
   )
 }

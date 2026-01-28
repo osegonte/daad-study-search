@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion'
-import { Search } from 'lucide-react'
-import { useState } from 'react'
+// src/components/home/SearchHero.tsx - COMPLETE FILE
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, TrendingUp } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../../lib/supabase'
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -19,23 +21,75 @@ const staggerContainer = {
   }
 }
 
+type SearchSuggestion = {
+  id: string
+  name: string
+  university: string
+}
+
 export default function SearchHero() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
-  const [courseType, setCourseType] = useState('')
-  const [language, setLanguage] = useState('')
-  const [subject, setSubject] = useState('')
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Fetch suggestions as user types
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.length < 2) {
+        setSuggestions([])
+        return
+      }
+
+      const { data } = await supabase
+        .from('programmes')
+        .select('id, name, university')
+        .or(`name.ilike.%${searchQuery}%,university.ilike.%${searchQuery}%,subject_area.ilike.%${searchQuery}%`)
+        .limit(8)
+
+      if (data) {
+        setSuggestions(data)
+        setShowSuggestions(true)
+      }
+    }
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [searchQuery])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    const params = new URLSearchParams()
-    if (searchQuery) params.set('query', searchQuery)
-    if (courseType) params.set('courseType', courseType)
-    if (language) params.set('language', language)
-    if (subject) params.set('subjectArea', subject)
-    
-    navigate(`/programmes?${params.toString()}`)
+    if (searchQuery.trim()) {
+      navigate(`/programmes?search=${encodeURIComponent(searchQuery)}`)
+      setShowSuggestions(false)
+    }
   }
+
+  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    navigate(`/programmes/${suggestion.id}`)
+    setShowSuggestions(false)
+    setSearchQuery('')
+  }
+
+  const popularSearches = [
+    'Computer Science',
+    'Business Administration',
+    'Mechanical Engineering',
+    'Medicine',
+    'Data Science'
+  ]
 
   return (
     <section className="pt-32 pb-16 bg-gradient-to-b from-background to-muted/30">
@@ -46,112 +100,72 @@ export default function SearchHero() {
           animate="visible"
           className="max-w-5xl mx-auto"
         >
-          {/* Title */}
-          <motion.div 
-            variants={fadeInUp}
-            className="text-center mb-10"
-          >
-            <h1 className="mb-4">
-              Study & Research in Germany
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Find your perfect study programme
-            </p>
-          </motion.div>
-          
           {/* Search Bar */}
-          <motion.form
-            variants={fadeInUp}
-            onSubmit={handleSearch}
-            className="mb-6"
-          >
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search programmes (e.g., Computer Science, Business, Engineering...)"
-                className="w-full h-16 pl-6 pr-32 text-base rounded-xl border-2 border-border bg-card shadow-medium focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-muted-foreground/50"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-12 px-8 bg-accent text-accent-foreground rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"
-              >
-                <Search className="w-5 h-5" />
-                <span className="hidden sm:inline">Search</span>
-              </button>
-            </div>
-          </motion.form>
-
-          {/* Quick Filters - NO ARROWS */}
           <motion.div
             variants={fadeInUp}
-            className="flex flex-wrap items-center gap-3 mb-6"
+            ref={searchRef}
+            className="relative mb-8"
           >
-            <select
-              value={courseType}
-              onChange={(e) => setCourseType(e.target.value)}
-              className="h-11 px-4 rounded-lg border border-border bg-card text-sm font-medium text-foreground/80 hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-all cursor-pointer appearance-none"
-              style={{ 
-                backgroundImage: 'none',
-                paddingRight: '1rem'
-              }}
-            >
-              <option value="">Course Type</option>
-              <option value="Preparatory">Preparatory Course</option>
-              <option value="Bachelor">Bachelor's Degree</option>
-              <option value="Master">Master's Degree</option>
-            </select>
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  placeholder="Search programmes, universities, or subjects..."
+                  className="w-full h-16 pl-16 pr-6 text-base rounded-xl border-2 border-border bg-card shadow-medium focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-muted-foreground/50"
+                />
+              </div>
 
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="h-11 px-4 rounded-lg border border-border bg-card text-sm font-medium text-foreground/80 hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-all cursor-pointer appearance-none"
-              style={{ 
-                backgroundImage: 'none',
-                paddingRight: '1rem'
-              }}
-            >
-              <option value="">Language</option>
-              <option value="German">German Only</option>
-              <option value="English">English Only</option>
-              <option value="German & English">German & English</option>
-            </select>
-
-            <select
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="h-11 px-4 rounded-lg border border-border bg-card text-sm font-medium text-foreground/80 hover:border-accent focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-all cursor-pointer appearance-none"
-              style={{ 
-                backgroundImage: 'none',
-                paddingRight: '1rem'
-              }}
-            >
-              <option value="">Subject Area</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Business">Business</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Medicine">Medicine</option>
-              <option value="Arts">Arts</option>
-            </select>
-
-            <button
-              onClick={() => navigate('/programmes')}
-              type="button"
-              className="h-11 px-6 rounded-lg border border-accent/30 bg-accent/5 text-accent text-sm font-semibold hover:bg-accent/10 transition-all"
-            >
-              More Filters →
-            </button>
+              {/* Autocomplete Suggestions */}
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full mt-2 w-full bg-card border border-border rounded-xl shadow-strong overflow-hidden z-50"
+                  >
+                    {suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.id}
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full px-6 py-4 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0"
+                      >
+                        <div className="font-semibold text-foreground mb-1">{suggestion.name}</div>
+                        <div className="text-sm text-muted-foreground">{suggestion.university}</div>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </form>
           </motion.div>
 
-          {/* Programme Count */}
+          {/* Popular Searches */}
           <motion.div
             variants={fadeInUp}
-            className="text-center"
+            className="flex flex-wrap items-center justify-center gap-3"
           >
-            <p className="text-lg font-semibold text-accent">
-              1,400+ programmes available
-            </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <TrendingUp className="w-4 h-4" />
+              <span>Popular:</span>
+            </div>
+            {popularSearches.map((search) => (
+              <button
+                key={search}
+                onClick={() => {
+                  setSearchQuery(search)
+                  navigate(`/programmes?search=${encodeURIComponent(search)}`)
+                }}
+                className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-all"
+              >
+                {search}
+              </button>
+            ))}
           </motion.div>
         </motion.div>
       </div>

@@ -61,3 +61,14 @@
     @apply max-w-7xl mx-auto px-6 lg:px-12;
   }
 }
+
+
+/* Hide scrollbar but keep functionality - Apple style */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
