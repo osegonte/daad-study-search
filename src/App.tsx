@@ -1,4 +1,4 @@
-// src/App.tsx - COMPLETE FILE
+// src/App.tsx - FIXED: Added missing routes for services + payment pages
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -14,6 +14,12 @@ import Upgrade from './pages/Upgrade'
 import News from './pages/News'
 import About from './pages/About'
 import Requirements from './pages/Requirements'
+import Services from './pages/Services'
+import ServiceApplication from './pages/ServiceApplication'
+import ServiceVisa from './pages/ServiceVisa'
+import ServiceCareer from './pages/ServiceCareer'
+import PaymentSuccess from './pages/PaymentSuccess'
+import PaymentCancelled from './pages/PaymentCancelled'
 
 function App() {
   return (
@@ -29,6 +35,12 @@ function App() {
             <Route path="news" element={<News />} />
             <Route path="about" element={<About />} />
             <Route path="requirements" element={<Requirements />} />
+            <Route path="services" element={<Services />} />
+            <Route path="services/application" element={<ServiceApplication />} />
+            <Route path="services/visa" element={<ServiceVisa />} />
+            <Route path="services/career" element={<ServiceCareer />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
+            <Route path="payment/cancelled" element={<PaymentCancelled />} />
             <Route
               path="watchlist"
               element={

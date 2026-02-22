@@ -1,4 +1,4 @@
-// src/components/home/SearchHero.tsx - COMPLETE FILE
+// src/components/home/SearchHero.tsx - FIXED: search param now uses 'search' consistently
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, TrendingUp } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
@@ -34,7 +34,6 @@ export default function SearchHero() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -45,7 +44,6 @@ export default function SearchHero() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Fetch suggestions as user types
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchQuery.length < 2) {
@@ -72,6 +70,7 @@ export default function SearchHero() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
+      // FIX: Use 'search' param to match Programmes.tsx
       navigate(`/programmes?search=${encodeURIComponent(searchQuery)}`)
       setShowSuggestions(false)
     }
@@ -159,6 +158,7 @@ export default function SearchHero() {
                 key={search}
                 onClick={() => {
                   setSearchQuery(search)
+                  // FIX: Use 'search' param consistently
                   navigate(`/programmes?search=${encodeURIComponent(search)}`)
                 }}
                 className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-all"
