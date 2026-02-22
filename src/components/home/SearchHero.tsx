@@ -1,4 +1,3 @@
-// src/components/home/SearchHero.tsx - FIXED: search param now uses 'search' consistently
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, TrendingUp } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
@@ -12,20 +11,10 @@ const fadeInUp = {
 
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
 }
 
-type SearchSuggestion = {
-  id: string
-  name: string
-  university: string
-}
+type SearchSuggestion = { id: string; title: string; universities: { name: string } | null }
 
 export default function SearchHero() {
   const navigate = useNavigate()
@@ -46,65 +35,34 @@ export default function SearchHero() {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (searchQuery.length < 2) {
-        setSuggestions([])
-        return
-      }
-
+      if (searchQuery.length < 2) { setSuggestions([]); return }
+      // FIX: correct table is 'programs' not 'programmes'
       const { data } = await supabase
-        .from('programmes')
-        .select('id, name, university')
-        .or(`name.ilike.%${searchQuery}%,university.ilike.%${searchQuery}%,subject_area.ilike.%${searchQuery}%`)
+        .from('programs')
+        .select('id, title, universities(name)')
+        .ilike('title', `%${searchQuery}%`)
         .limit(8)
-
-      if (data) {
-        setSuggestions(data)
-        setShowSuggestions(true)
-      }
+      if (data) { setSuggestions(data as SearchSuggestion[]); setShowSuggestions(true) }
     }
-
-    const debounceTimer = setTimeout(fetchSuggestions, 300)
-    return () => clearTimeout(debounceTimer)
+    const timer = setTimeout(fetchSuggestions, 300)
+    return () => clearTimeout(timer)
   }, [searchQuery])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      // FIX: Use 'search' param to match Programmes.tsx
       navigate(`/programmes?search=${encodeURIComponent(searchQuery)}`)
       setShowSuggestions(false)
     }
   }
 
-  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    navigate(`/programmes/${suggestion.id}`)
-    setShowSuggestions(false)
-    setSearchQuery('')
-  }
-
-  const popularSearches = [
-    'Computer Science',
-    'Business Administration',
-    'Mechanical Engineering',
-    'Medicine',
-    'Data Science'
-  ]
+  const popularSearches = ['Computer Science', 'Business Administration', 'Mechanical Engineering', 'Medicine', 'Data Science']
 
   return (
     <section className="pt-32 pb-16 bg-gradient-to-b from-background to-muted/30">
       <div className="container-custom">
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="max-w-5xl mx-auto"
-        >
-          {/* Search Bar */}
-          <motion.div
-            variants={fadeInUp}
-            ref={searchRef}
-            className="relative mb-8"
-          >
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="max-w-5xl mx-auto">
+          <motion.div variants={fadeInUp} ref={searchRef} className="relative mb-8">
             <form onSubmit={handleSearch}>
               <div className="relative">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
@@ -117,8 +75,6 @@ export default function SearchHero() {
                   className="w-full h-16 pl-16 pr-6 text-base rounded-xl border-2 border-border bg-card shadow-medium focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-muted-foreground/50"
                 />
               </div>
-
-              {/* Autocomplete Suggestions */}
               <AnimatePresence>
                 {showSuggestions && suggestions.length > 0 && (
                   <motion.div
@@ -127,15 +83,15 @@ export default function SearchHero() {
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute top-full mt-2 w-full bg-card border border-border rounded-xl shadow-strong overflow-hidden z-50"
                   >
-                    {suggestions.map((suggestion) => (
+                    {suggestions.map((s) => (
                       <button
-                        key={suggestion.id}
+                        key={s.id}
                         type="button"
-                        onClick={() => handleSuggestionClick(suggestion)}
+                        onClick={() => { navigate(`/programmes/${s.id}`); setShowSuggestions(false); setSearchQuery('') }}
                         className="w-full px-6 py-4 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0"
                       >
-                        <div className="font-semibold text-foreground mb-1">{suggestion.name}</div>
-                        <div className="text-sm text-muted-foreground">{suggestion.university}</div>
+                        <div className="font-semibold text-foreground mb-1">{s.title}</div>
+                        <div className="text-sm text-muted-foreground">{s.universities?.name}</div>
                       </button>
                     ))}
                   </motion.div>
@@ -144,11 +100,7 @@ export default function SearchHero() {
             </form>
           </motion.div>
 
-          {/* Popular Searches */}
-          <motion.div
-            variants={fadeInUp}
-            className="flex flex-wrap items-center justify-center gap-3"
-          >
+          <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4" />
               <span>Popular:</span>
@@ -156,11 +108,7 @@ export default function SearchHero() {
             {popularSearches.map((search) => (
               <button
                 key={search}
-                onClick={() => {
-                  setSearchQuery(search)
-                  // FIX: Use 'search' param consistently
-                  navigate(`/programmes?search=${encodeURIComponent(search)}`)
-                }}
+                onClick={() => { setSearchQuery(search); navigate(`/programmes?search=${encodeURIComponent(search)}`) }}
                 className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-all"
               >
                 {search}

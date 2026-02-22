@@ -1,8 +1,14 @@
-// src/App.tsx - FIXED: Added missing routes for services + payment pages
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import AdminRoute from './components/auth/AdminRoute'
 import Layout from './components/layout/Layout'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminPrograms from './pages/admin/AdminPrograms'
+import AdminUniversities from './pages/admin/AdminUniversities'
+import AdminNews from './pages/admin/AdminNews'
+import AdminSubjectAreas from './pages/admin/AdminSubjectAreas'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -26,8 +32,20 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Admin */}
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="programs" element={<AdminPrograms />} />
+            <Route path="universities" element={<AdminUniversities />} />
+            <Route path="news" element={<AdminNews />} />
+            <Route path="subjects" element={<AdminSubjectAreas />} />
+          </Route>
+
+          {/* Public */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="programmes" element={<Programmes />} />
@@ -41,30 +59,9 @@ function App() {
             <Route path="services/career" element={<ServiceCareer />} />
             <Route path="payment/success" element={<PaymentSuccess />} />
             <Route path="payment/cancelled" element={<PaymentCancelled />} />
-            <Route
-              path="watchlist"
-              element={
-                <ProtectedRoute>
-                  <Watchlist />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="upgrade"
-              element={
-                <ProtectedRoute>
-                  <Upgrade />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="watchlist" element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthProvider>
