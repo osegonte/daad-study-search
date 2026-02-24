@@ -1,4 +1,4 @@
-// src/pages/About.tsx - FIXED VERSION (no JSX errors)
+// src/pages/About.tsx
 import { motion } from 'framer-motion'
 import { Database, Shield, Clock, Heart, CheckCircle, Globe, Users, TrendingUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -14,7 +14,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-6xl font-bold text-foreground mb-6"
           >
-            About Study Germany
+            About Studymetaverse
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -22,7 +22,7 @@ export default function About() {
             transition={{ delay: 0.1 }}
             className="text-xl text-muted-foreground leading-relaxed"
           >
-            We're building the most comprehensive and trusted platform for international students seeking to study in Germany.
+            We're building the most comprehensive and trusted platform for international students seeking to study in Germany — free, powerful, and built for you.
           </motion.p>
         </div>
       </section>
@@ -34,10 +34,10 @@ export default function About() {
             <div>
               <h2 className="text-3xl font-bold text-foreground mb-6">Our Mission</h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                Studying in Germany opens doors to world-class education, but navigating the application process can be overwhelming. We created Study Germany to simplify this journey.
+                Studying in Germany opens doors to world-class education, but navigating the application process can be overwhelming. We created Studymetaverse to simplify this journey.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Our platform provides verified, up-to-date information about German universities and study programmes, helping students make informed decisions with confidence.
+                Our platform provides verified, up-to-date information about German universities and study programmes, helping students make informed decisions with confidence — completely free to search.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -75,9 +75,9 @@ export default function About() {
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Database className="w-8 h-8 text-accent" />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-4">Comprehensive Database</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4">Free Programme Search</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Access detailed information about every study programme, including requirements, language options, and application deadlines.
+                Access detailed information about every study programme — all filters, all requirements, completely free. No paywalls.
               </p>
             </div>
             <div className="text-center">
@@ -93,9 +93,9 @@ export default function About() {
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Clock className="w-8 h-8 text-accent" />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-4">Time-Saving Filters</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4">Personalised Match Report</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Smart filters help you find programmes that match your qualifications and preferences in seconds.
+                Upload your transcript and get a hand-crafted list of programmes you're most likely to be admitted to — our paid expert service.
               </p>
             </div>
           </div>
@@ -128,18 +128,18 @@ export default function About() {
             <div className="flex gap-4 items-start">
               <CheckCircle className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Regular Updates</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">All Filters, Always Free</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Our team continuously updates programme information to reflect the latest changes in admission requirements and deadlines.
+                  Every search filter — language, subject, admission type, MOI letter, motivation letter, interview, and more — is free for everyone.
                 </p>
               </div>
             </div>
             <div className="flex gap-4 items-start">
               <CheckCircle className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Free Access</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">Expert Match Reports</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Core features are completely free. Premium features provide additional insights for students who need extra support.
+                  For students who want personalised guidance, our Match Report service analyses your transcript and delivers a curated shortlist of programmes you can realistically get into.
                 </p>
               </div>
             </div>
@@ -166,14 +166,22 @@ export default function About() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-foreground mb-6">Ready to Start Your Journey?</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Explore over 1,400 study programmes and find the perfect fit for your goals.
+            Explore over 1,400 study programmes — or get your personalised Match Report.
           </p>
-          <Link
-            to="/programmes"
-            className="inline-block px-8 py-4 bg-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
-          >
-            Explore Programmes
-          </Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              to="/programmes"
+              className="inline-block px-8 py-4 bg-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              Explore Programmes
+            </Link>
+            <Link
+              to="/match-report"
+              className="inline-block px-8 py-4 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent hover:text-white transition-all"
+            >
+              Get Match Report
+            </Link>
+          </div>
         </div>
       </section>
     </div>

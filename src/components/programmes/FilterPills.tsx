@@ -1,9 +1,7 @@
-// src/components/programmes/FilterPills.tsx - COMPLETE FILE
+// src/components/programmes/FilterPills.tsx
 import { useState } from 'react'
-import { Crown, X, ChevronDown } from 'lucide-react'
+import { X, ChevronDown } from 'lucide-react'
 import FilterModal from './FilterModal'
-import { useAuth } from '../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
 
 type FilterPillsProps = {
   filters: {
@@ -16,7 +14,6 @@ type FilterPillsProps = {
     ectsRequired: string[]
     institutionType: string[]
     tuitionFees: string[]
-    // Premium filters
     moiLetter: string[]
     motivLetter: string[]
     testRequired: string[]
@@ -28,8 +25,6 @@ type FilterPillsProps = {
 }
 
 export default function FilterPills({ filters, onFilterChange, onClearAll }: FilterPillsProps) {
-  const { isPremium } = useAuth()
-  const navigate = useNavigate()
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null)
 
@@ -42,8 +37,8 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'Preparatory', label: 'Preparatory Course' },
         { value: 'Bachelor', label: "Bachelor's Degree" },
-        { value: 'Master', label: "Master's Degree" }
-      ]
+        { value: 'Master', label: "Master's Degree" },
+      ],
     },
     {
       id: 'language',
@@ -51,36 +46,19 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'German', label: 'German Only' },
         { value: 'English', label: 'English Only' },
-        { value: 'German & English', label: 'German & English' }
-      ]
+        { value: 'German & English', label: 'German & English' },
+      ],
     },
     {
       id: 'subjectArea',
       label: 'Subject Area',
       hasSearch: true,
       options: [
-        { value: 'Agriculture', label: 'Agriculture' },
-        { value: 'Arts', label: 'Arts' },
-        { value: 'Biochemistry', label: 'Biochemistry' },
-        { value: 'Biology', label: 'Biology' },
-        { value: 'Business', label: 'Business' },
-        { value: 'Chemistry', label: 'Chemistry' },
-        { value: 'Communication', label: 'Communication' },
-        { value: 'Computer Science', label: 'Computer Science' },
-        { value: 'Economics', label: 'Economics' },
-        { value: 'Education', label: 'Education' },
-        { value: 'Engineering', label: 'Engineering' },
-        { value: 'Environmental Science', label: 'Environmental Science' },
-        { value: 'Food and Beverage', label: 'Food and Beverage' },
-        { value: 'Health', label: 'Health' },
-        { value: 'Literature', label: 'Literature' },
-        { value: 'Medicine', label: 'Medicine' },
-        { value: 'Philosophy', label: 'Philosophy' },
-        { value: 'Physics', label: 'Physics' },
-        { value: 'Psychology', label: 'Psychology' },
-        { value: 'Social Science', label: 'Social Science' },
-        { value: 'Mathematics', label: 'Mathematics' }
-      ]
+        'Agriculture', 'Arts', 'Biochemistry', 'Biology', 'Business', 'Chemistry',
+        'Communication', 'Computer Science', 'Economics', 'Education', 'Engineering',
+        'Environmental Science', 'Food and Beverage', 'Health', 'Literature',
+        'Mathematics', 'Medicine', 'Philosophy', 'Physics', 'Psychology', 'Social Science',
+      ].map(v => ({ value: v, label: v })),
     },
     {
       id: 'beginning',
@@ -88,8 +66,8 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'Summer', label: 'Summer' },
         { value: 'Winter', label: 'Winter' },
-        { value: 'Winter/Summer', label: 'Summer/Winter' }
-      ]
+        { value: 'Winter/Summer', label: 'Summer/Winter' },
+      ],
     },
     {
       id: 'studyMode',
@@ -97,35 +75,32 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'Full-time', label: 'Fully On-site' },
         { value: 'Hybrid', label: 'Hybrid' },
-        { value: 'Online', label: 'Fully Online' }
-      ]
+        { value: 'Online', label: 'Fully Online' },
+      ],
     },
     {
       id: 'admissionType',
       label: 'Admission',
       options: [
         { value: 'non-restricted (ohne NC)', label: 'Non-restricted (ohne NC)' },
-        { value: 'restricted (NC)', label: 'Restricted (NC)' }
-      ]
+        { value: 'restricted (NC)', label: 'Restricted (NC)' },
+      ],
     },
     {
       id: 'tuitionFees',
       label: 'Tuition',
       options: [
         { value: 'false', label: 'No Tuition' },
-        { value: 'true', label: 'Has Tuition' }
-      ]
-    }
-  ]
-
-  const premiumFilters = [
+        { value: 'true', label: 'Has Tuition' },
+      ],
+    },
     {
       id: 'moiLetter',
       label: 'MOI Letter',
       options: [
         { value: 'Accepted', label: 'Accepted' },
-        { value: 'Not Accepted', label: 'Not Accepted' }
-      ]
+        { value: 'Not Accepted', label: 'Not Accepted' },
+      ],
     },
     {
       id: 'motivLetter',
@@ -133,8 +108,8 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'No', label: 'Not Required' },
         { value: 'Yes', label: 'Required' },
-        { value: 'Varied', label: 'Varies' }
-      ]
+        { value: 'Varied', label: 'Varies' },
+      ],
     },
     {
       id: 'testRequired',
@@ -142,8 +117,8 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'No', label: 'Not Required' },
         { value: 'Yes', label: 'Required' },
-        { value: 'Varied', label: 'Varies' }
-      ]
+        { value: 'Varied', label: 'Varies' },
+      ],
     },
     {
       id: 'interview',
@@ -151,28 +126,24 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
       options: [
         { value: 'No', label: 'Not Required' },
         { value: 'Yes', label: 'Required' },
-        { value: 'Varied', label: 'Varies' }
-      ]
+        { value: 'Varied', label: 'Varies' },
+      ],
     },
     {
       id: 'moduleHandbook',
       label: 'Module Handbook',
       options: [
         { value: 'No', label: 'Not Required' },
-        { value: 'Yes', label: 'Required' }
-      ]
-    }
+        { value: 'Yes', label: 'Required' },
+      ],
+    },
   ]
 
-  const getActiveCount = (filterId: string) => {
-    return filters[filterId as keyof typeof filters]?.length || 0
-  }
-
-  const isPremiumActive = premiumFilters.some(f => getActiveCount(f.id) > 0)
+  const getActiveCount = (filterId: string) =>
+    filters[filterId as keyof typeof filters]?.length || 0
 
   return (
     <div className="mb-6">
-      {/* Filter Pills */}
       <div className="flex flex-wrap items-center gap-3">
         {filterConfigs.map(config => {
           const count = getActiveCount(config.id)
@@ -200,35 +171,6 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
           )
         })}
 
-        {/* Premium Pill */}
-        <button
-          onClick={(e) => {
-            if (!isPremium) {
-              navigate('/upgrade')
-            } else {
-              setAnchorElement(e.currentTarget)
-              setActiveModal('premium')
-            }
-          }}
-          className={`h-10 px-4 rounded-full border-2 font-semibold text-sm transition-all flex items-center gap-2 ${
-            isPremiumActive
-              ? 'bg-accent text-white border-accent'
-              : isPremium
-              ? 'bg-card text-foreground border-border hover:border-accent'
-              : 'bg-accent/10 text-accent border-accent/30 hover:bg-accent/20'
-          }`}
-        >
-          <Crown className="w-4 h-4" />
-          Premium
-          {isPremiumActive && (
-            <span className="flex items-center justify-center w-5 h-5 bg-white/20 rounded-full text-xs">
-              {premiumFilters.reduce((sum, f) => sum + getActiveCount(f.id), 0)}
-            </span>
-          )}
-          {isPremium && <ChevronDown className="w-4 h-4" />}
-        </button>
-
-        {/* Clear All */}
         {hasActiveFilters && (
           <button
             onClick={onClearAll}
@@ -240,7 +182,7 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
         )}
       </div>
 
-      {/* Filter Modals */}
+      {/* Modals */}
       {filterConfigs.map(config => (
         <FilterModal
           key={config.id}
@@ -257,34 +199,6 @@ export default function FilterPills({ filters, onFilterChange, onClearAll }: Fil
           anchorElement={anchorElement}
         />
       ))}
-
-      {/* Premium Modal */}
-      {isPremium && (
-        <FilterModal
-          isOpen={activeModal === 'premium'}
-          onClose={() => setActiveModal(null)}
-          title="Premium Filters"
-          options={premiumFilters.flatMap(f => 
-            f.options.map(opt => ({ 
-              value: `${f.id}:${opt.value}`, 
-              label: `${f.label}: ${opt.label}` 
-            }))
-          )}
-          selectedValues={premiumFilters.flatMap(f => 
-            (filters[f.id as keyof typeof filters] || []).map(v => `${f.id}:${v}`)
-          )}
-          onApply={(values) => {
-            premiumFilters.forEach(f => {
-              const relevantValues = values
-                .filter(v => v.startsWith(`${f.id}:`))
-                .map(v => v.split(':')[1])
-              onFilterChange(f.id, relevantValues)
-            })
-            setActiveModal(null)
-          }}
-          anchorElement={anchorElement}
-        />
-      )}
     </div>
   )
 }

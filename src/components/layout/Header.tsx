@@ -1,14 +1,15 @@
-// src/components/layout/Header.tsx - COMPLETE FILE
+// src/components/layout/Header.tsx
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Menu, X, User, LogOut, Heart, Crown } from 'lucide-react'
+import { Menu, X, User, LogOut, Heart } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
+import Logo from '../Logo'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
-  const { user, isPremium, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -27,11 +28,8 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">SG</span>
-          </div>
-          <span className="font-bold text-xl text-foreground">Study Germany</span>
+        <Link to="/" className="flex items-center">
+          <Logo size={30} />
         </Link>
 
         {/* Desktop Navigation - Centered */}
@@ -57,7 +55,6 @@ export default function Header() {
               >
                 <User className="w-4 h-4" />
                 <span className="text-sm font-medium">{user.email}</span>
-                {isPremium && <Crown className="w-4 h-4 text-accent" />}
               </button>
 
               <AnimatePresence>
@@ -89,16 +86,6 @@ export default function Header() {
                         <Heart className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-medium text-foreground">Watchlist</span>
                       </Link>
-                      {!isPremium && (
-                        <Link
-                          to="/upgrade"
-                          onClick={() => setProfileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-t border-border"
-                        >
-                          <Crown className="w-4 h-4 text-accent" />
-                          <span className="text-sm font-medium text-accent">Upgrade to Premium</span>
-                        </Link>
-                      )}
                       <button
                         onClick={handleSignOut}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-t border-border"
@@ -180,15 +167,6 @@ export default function Header() {
                     >
                       Watchlist
                     </Link>
-                    {!isPremium && (
-                      <Link
-                        to="/upgrade"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-4 py-2 text-base font-medium text-accent hover:bg-muted rounded-lg transition-colors"
-                      >
-                        Upgrade to Premium
-                      </Link>
-                    )}
                     <button
                       onClick={() => {
                         handleSignOut()

@@ -49,7 +49,7 @@ export default function AdminDashboard() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1 text-sm">Overview of your Study Germany platform</p>
+        <p className="text-gray-400 mt-1 text-sm">Overview of your Studymetaverse platform</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">

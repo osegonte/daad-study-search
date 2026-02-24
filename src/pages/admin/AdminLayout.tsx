@@ -1,7 +1,9 @@
+// src/pages/admin/AdminLayout.tsx
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, GraduationCap, Building2, Newspaper, BookOpen, LogOut, ExternalLink, Menu, X } from 'lucide-react'
+import { LayoutDashboard, GraduationCap, Building2, Newspaper, BookOpen, FileSearch, LogOut, ExternalLink, Menu, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import Logo from '../../components/Logo'
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -9,6 +11,7 @@ const navItems = [
   { to: '/admin/universities', label: 'Universities', icon: Building2, end: false },
   { to: '/admin/news', label: 'News', icon: Newspaper, end: false },
   { to: '/admin/subjects', label: 'Subject Areas', icon: BookOpen, end: false },
+  { to: '/admin/match-reports', label: 'Match Reports', icon: FileSearch, end: false },
 ]
 
 export default function AdminLayout() {
@@ -44,24 +47,20 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-gray-950 flex overflow-hidden">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={`
         fixed top-0 left-0 h-full w-60 bg-gray-900 border-r border-gray-800 z-50
         flex flex-col transform transition-transform duration-200 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}>
         <div className="px-4 py-4 border-b border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-accent rounded-md flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-xs">SG</span>
-            </div>
+          <div className="flex items-center gap-2 text-white">
+            <Logo size={24} variant="mark" className="text-accent" />
             <div>
-              <p className="text-white font-semibold text-sm leading-none">Study Germany</p>
+              <p className="text-white font-semibold text-sm leading-none">Studymetaverse</p>
               <p className="text-gray-500 text-xs mt-0.5">Admin Panel</p>
             </div>
           </div>
@@ -86,17 +85,13 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-h-screen lg:ml-60 w-full">
-        {/* Mobile topbar */}
         <div className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-4 py-3 bg-gray-900 border-b border-gray-800">
           <button onClick={() => setSidebarOpen(true)} className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-accent rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xs">SG</span>
-            </div>
+          <div className="flex items-center gap-2 text-white">
+            <Logo size={20} variant="mark" className="text-accent" />
             <span className="text-white font-semibold text-sm">Admin</span>
           </div>
         </div>
