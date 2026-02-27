@@ -1,4 +1,4 @@
-// src/pages/Programmes.tsx - FIXED: Removed duplicate Header/Footer, fixed search param name
+// src/pages/Programmes.tsx
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -38,12 +38,10 @@ export default function Programmes() {
   const [programmes, setProgrammes] = useState<Programme[]>([])
   const [loading, setLoading] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
-  // FIX: Read both 'search' and 'query' params for compatibility
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || searchParams.get('query') || '')
   const [sortBy, setSortBy] = useState<SortOption>('latest')
   const [watchlistStatus, setWatchlistStatus] = useState<Record<string, boolean>>({})
   const [togglingId, setTogglingId] = useState<string | null>(null)
-
   const [filters, setFilters] = useState({
     courseType: [] as string[],
     language: [] as string[],
@@ -74,20 +72,10 @@ export default function Programmes() {
 
   const handleClearAll = () => {
     setFilters({
-      courseType: [],
-      language: [],
-      subjectArea: [],
-      admissionType: [],
-      beginning: [],
-      studyMode: [],
-      ectsRequired: [],
-      institutionType: [],
-      tuitionFees: [],
-      moiLetter: [],
-      motivLetter: [],
-      testRequired: [],
-      interview: [],
-      moduleHandbook: []
+      courseType: [], language: [], subjectArea: [], admissionType: [],
+      beginning: [], studyMode: [], ectsRequired: [], institutionType: [],
+      tuitionFees: [], moiLetter: [], motivLetter: [], testRequired: [],
+      interview: [], moduleHandbook: []
     })
   }
 
@@ -101,109 +89,61 @@ export default function Programmes() {
   useEffect(() => {
     async function checkWatchlistStatus() {
       if (!user || programmes.length === 0) return
-
       const statusMap: Record<string, boolean> = {}
-      
       for (const programme of programmes) {
-        const inList = await isInWatchlist(user.id, programme.id)
-        statusMap[programme.id] = inList
+        statusMap[programme.id] = await isInWatchlist(user.id, programme.id)
       }
-
       setWatchlistStatus(statusMap)
     }
-
     checkWatchlistStatus()
   }, [user, programmes])
 
   async function handleToggleWatchlist(e: React.MouseEvent, programmeId: string) {
     e.stopPropagation()
-
-    if (!user) {
-      navigate('/login')
-      return
-    }
-
+    if (!user) { navigate('/login'); return }
     setTogglingId(programmeId)
-
     const { success } = await toggleWatchlist(user.id, programmeId)
-
     if (success) {
-      setWatchlistStatus(prev => ({
-        ...prev,
-        [programmeId]: !prev[programmeId]
-      }))
+      setWatchlistStatus(prev => ({ ...prev, [programmeId]: !prev[programmeId] }))
     }
-
     setTogglingId(null)
   }
 
   function sortProgrammes(programmes: Programme[], sortBy: SortOption): Programme[] {
     const sorted = [...programmes]
-    
     switch (sortBy) {
-      case 'name':
-        return sorted.sort((a, b) => a.title.localeCompare(b.title))
-      case 'city':
-        return sorted.sort((a, b) => a.university.city.localeCompare(b.university.city))
-      case 'university':
-        return sorted.sort((a, b) => a.university.name.localeCompare(b.university.name))
-      case 'latest':
-      default:
-        return sorted
+      case 'name': return sorted.sort((a, b) => a.title.localeCompare(b.title))
+      case 'city': return sorted.sort((a, b) => a.university.city.localeCompare(b.university.city))
+      case 'university': return sorted.sort((a, b) => a.university.name.localeCompare(b.university.name))
+      default: return sorted
     }
   }
 
   useEffect(() => {
     async function fetchProgrammes() {
       setLoading(true)
-
       let query = supabase
         .from('programs')
         .select(`
-          id,
-          title,
-          degree_type,
-          language_of_instruction,
-          start_semester,
-          nc_status,
-          tuition_fee,
-          study_mode,
-          ects_required,
+          id, title, degree_type, language_of_instruction, start_semester,
+          nc_status, tuition_fee, study_mode, ects_required,
           university:universities(name, city, type),
           subject_area:subject_areas(name)
         `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .limit(20)
 
-      if (searchQuery) {
-        query = query.ilike('title', `%${searchQuery}%`)
-      }
-
-      if (filters.courseType.length > 0) {
-        query = query.in('degree_type', filters.courseType)
-      }
-      if (filters.language.length > 0) {
-        query = query.in('language_of_instruction', filters.language)
-      }
-      if (filters.subjectArea.length > 0) {
-        query = query.in('subject_area.name', filters.subjectArea)
-      }
-      if (filters.admissionType.length > 0) {
-        query = query.in('nc_status', filters.admissionType)
-      }
-      if (filters.beginning.length > 0) {
-        query = query.in('start_semester', filters.beginning)
-      }
-      if (filters.studyMode.length > 0) {
-        query = query.in('study_mode', filters.studyMode)
-      }
+      if (searchQuery) query = query.ilike('title', `%${searchQuery}%`)
+      if (filters.courseType.length > 0) query = query.in('degree_type', filters.courseType)
+      if (filters.language.length > 0) query = query.in('language_of_instruction', filters.language)
+      if (filters.admissionType.length > 0) query = query.in('nc_status', filters.admissionType)
+      if (filters.beginning.length > 0) query = query.in('start_semester', filters.beginning)
+      if (filters.studyMode.length > 0) query = query.in('study_mode', filters.studyMode)
       if (filters.ectsRequired.length > 0) {
-        const ectsValues = filters.ectsRequired.map(v => parseInt(v))
-        query = query.in('ects_required', ectsValues)
+        query = query.in('ects_required', filters.ectsRequired.map(v => parseInt(v)))
       }
       if (filters.tuitionFees.length > 0) {
-        const tuitionValues = filters.tuitionFees.map(v => v === 'true')
-        query = query.in('tuition_fee', tuitionValues)
+        query = query.in('tuition_fee', filters.tuitionFees.map(v => v === 'true'))
       }
 
       const { data, error, count } = await query
@@ -211,14 +151,18 @@ export default function Programmes() {
       if (error) {
         console.error('Error fetching programmes:', error)
       } else {
-        const sortedData = sortProgrammes(data as Programme[] || [], sortBy)
-        setProgrammes(sortedData)
+        // FIX: Supabase returns foreign key joins as arrays — unwrap to single objects
+        const normalized = (data || []).map((p: any) => ({
+          ...p,
+          university: Array.isArray(p.university) ? p.university[0] ?? {} : p.university ?? {},
+          subject_area: Array.isArray(p.subject_area) ? p.subject_area[0] ?? {} : p.subject_area ?? {},
+        })) as Programme[]
+
+        setProgrammes(sortProgrammes(normalized, sortBy))
         setTotalCount(count || 0)
       }
-
       setLoading(false)
     }
-
     fetchProgrammes()
   }, [searchQuery, filters, sortBy])
 
@@ -254,14 +198,14 @@ export default function Programmes() {
         </form>
 
         {/* Filter Pills */}
-        <FilterPills 
+        <FilterPills
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearAll={handleClearAll}
         />
 
         {/* Active Filter Chips */}
-        <ActiveFilterChips 
+        <ActiveFilterChips
           filters={filters}
           onRemoveFilter={handleRemoveFilter}
         />
@@ -336,7 +280,6 @@ export default function Programmes() {
                       <span>{programme.university.type}</span>
                     </div>
                   </div>
-                  
                   <span className="px-3 py-1 bg-accent/10 text-accent text-xs font-semibold rounded-full whitespace-nowrap ml-2">
                     {programme.degree_type}
                   </span>
@@ -348,12 +291,10 @@ export default function Programmes() {
                     <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-foreground/80">{programme.language_of_instruction}</span>
                   </div>
-                  
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-foreground/80">Starts: {programme.start_semester}</span>
                   </div>
-
                   <div className="flex items-center gap-2 text-sm">
                     <GraduationCap className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-foreground/80">{programme.study_mode}</span>
@@ -363,21 +304,19 @@ export default function Programmes() {
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    programme.nc_status === 'restricted (NC)' 
-                      ? 'bg-red-50 text-red-600' 
+                    programme.nc_status === 'restricted (NC)'
+                      ? 'bg-red-50 text-red-600'
                       : 'bg-green-50 text-green-600'
                   }`}>
                     {programme.nc_status}
                   </span>
-                  
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    programme.tuition_fee 
-                      ? 'bg-orange-50 text-orange-600' 
+                    programme.tuition_fee
+                      ? 'bg-orange-50 text-orange-600'
                       : 'bg-blue-50 text-blue-600'
                   }`}>
                     {programme.tuition_fee ? 'Tuition Required' : 'No Tuition'}
                   </span>
-
                   {programme.ects_required > 0 && (
                     <span className="px-2 py-1 text-xs rounded-full bg-purple-50 text-purple-600">
                       {programme.ects_required} ECTS
@@ -386,9 +325,7 @@ export default function Programmes() {
                 </div>
 
                 {/* View Details Button */}
-                <button 
-                  className="w-full py-3 bg-accent/5 text-accent font-semibold rounded-lg hover:bg-accent/10 transition-colors"
-                >
+                <button className="w-full py-3 bg-accent/5 text-accent font-semibold rounded-lg hover:bg-accent/10 transition-colors">
                   View Details
                 </button>
               </motion.article>
@@ -396,12 +333,8 @@ export default function Programmes() {
           </div>
         ) : (
           <div className="text-center py-16 bg-card border border-border rounded-xl">
-            <p className="text-lg text-muted-foreground mb-2">
-              No programmes found
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Try adjusting your filters or search query
-            </p>
+            <p className="text-lg text-muted-foreground mb-2">No programmes found</p>
+            <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
           </div>
         )}
       </div>

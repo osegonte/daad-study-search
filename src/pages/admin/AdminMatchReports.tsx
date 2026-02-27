@@ -79,7 +79,7 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
   async function getSignedUrl(path: string) {
     const { data } = await supabase.storage
       .from('match-reports')
-      .createSignedUrl(path, 60 * 5) // 5 min
+      .createSignedUrl(path, 60 * 5)
     if (data?.signedUrl) window.open(data.signedUrl, '_blank')
   }
 
@@ -109,7 +109,6 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
 
       {open && (
         <div className="border-t border-border p-5 bg-card/30 space-y-5">
-          {/* Profile summary */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
             {[
               { label: 'Country', value: req.current_country },
@@ -126,7 +125,6 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
             ))}
           </div>
 
-          {/* Preferred subjects */}
           {req.preferred_subjects?.length > 0 && (
             <div>
               <p className="text-xs text-foreground/40 mb-2">Preferred Subjects</p>
@@ -138,7 +136,6 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
             </div>
           )}
 
-          {/* Notes from applicant */}
           {req.additional_notes && (
             <div>
               <p className="text-xs text-foreground/40 mb-2">Notes from applicant</p>
@@ -148,7 +145,6 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
             </div>
           )}
 
-          {/* File downloads */}
           {(req.transcript_path || req.cv_path) && (
             <div className="flex flex-wrap gap-3">
               {req.transcript_path && (
@@ -172,7 +168,6 @@ function RequestRow({ req, onUpdate }: { req: Request; onUpdate: () => void }) {
             </div>
           )}
 
-          {/* Admin controls */}
           <div className="border-t border-border pt-5 space-y-4">
             <div className="flex items-center gap-4">
               <div>
@@ -246,14 +241,13 @@ export default function AdminMatchReports() {
     delivered: requests.filter(r => r.status === 'delivered').length,
   }
 
-  const paidCount = requests.filter(r => r.payment_status === 'paid').length
+  // FIX: removed unused paidCount variable
   const revenue = requests
     .filter(r => r.payment_status === 'paid')
     .reduce((sum, r) => sum + (r.amount_paid || 2900), 0) / 100
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black text-foreground">Match Report Requests</h1>
@@ -261,13 +255,12 @@ export default function AdminMatchReports() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
           { icon: AlertCircle, label: 'New', value: counts.new, color: 'text-blue-400' },
           { icon: Clock, label: 'In Progress', value: counts.in_progress, color: 'text-yellow-400' },
           { icon: CheckCircle2, label: 'Delivered', value: counts.delivered, color: 'text-green-400' },
-          { icon: Mail, label: `Revenue`, value: `€${revenue.toFixed(0)}`, color: 'text-accent' },
+          { icon: Mail, label: 'Revenue', value: `€${revenue.toFixed(0)}`, color: 'text-accent' },
         ].map(stat => (
           <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
@@ -279,7 +272,6 @@ export default function AdminMatchReports() {
         ))}
       </div>
 
-      {/* Filter tabs */}
       <div className="flex gap-2 mb-5">
         {(['all', 'new', 'in_progress', 'delivered'] as const).map(f => (
           <button
@@ -297,7 +289,6 @@ export default function AdminMatchReports() {
         ))}
       </div>
 
-      {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-foreground/30" />

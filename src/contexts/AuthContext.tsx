@@ -6,6 +6,9 @@ type AuthContextType = {
   user: User | null
   session: Session | null
   loading: boolean
+  // isPremium is kept for backward compatibility but always false —
+  // the premium subscription model has been replaced by one-time Match Reports
+  isPremium: boolean
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
@@ -37,7 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({ email, password })
       if (authError) throw authError
-
       if (authData.user) {
         const { error: profileError } = await supabase
           .from('users')
@@ -49,7 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }])
         if (profileError) console.error('Error creating user profile:', profileError)
       }
-
       return { error: null }
     } catch (error) {
       return { error: error as Error }
@@ -71,7 +72,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      user,
+      session,
+      loading,
+      isPremium: false, // deprecated — Match Report model replaced subscriptions
+      signUp,
+      signIn,
+      signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   )

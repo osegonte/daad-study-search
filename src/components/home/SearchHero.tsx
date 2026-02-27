@@ -14,7 +14,8 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
 }
 
-type SearchSuggestion = { id: string; title: string; universities: { name: string } | null }
+// Supabase returns joins as arrays — never null, always []
+type SearchSuggestion = { id: string; title: string; universities: { name: string }[] }
 
 export default function SearchHero() {
   const navigate = useNavigate()
@@ -36,13 +37,15 @@ export default function SearchHero() {
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchQuery.length < 2) { setSuggestions([]); return }
-      // FIX: correct table is 'programs' not 'programmes'
       const { data } = await supabase
         .from('programs')
         .select('id, title, universities(name)')
         .ilike('title', `%${searchQuery}%`)
         .limit(8)
-      if (data) { setSuggestions(data as SearchSuggestion[]); setShowSuggestions(true) }
+      if (data) {
+        setSuggestions(data as unknown as SearchSuggestion[])
+        setShowSuggestions(true)
+      }
     }
     const timer = setTimeout(fetchSuggestions, 300)
     return () => clearTimeout(timer)
@@ -91,7 +94,8 @@ export default function SearchHero() {
                         className="w-full px-6 py-4 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0"
                       >
                         <div className="font-semibold text-foreground mb-1">{s.title}</div>
-                        <div className="text-sm text-muted-foreground">{s.universities?.name}</div>
+                        {/* FIX: unwrap array to get first university name */}
+                        <div className="text-sm text-muted-foreground">{s.universities?.[0]?.name}</div>
                       </button>
                     ))}
                   </motion.div>
@@ -99,7 +103,6 @@ export default function SearchHero() {
               </AnimatePresence>
             </form>
           </motion.div>
-
           <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4" />

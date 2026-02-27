@@ -6,12 +6,17 @@ import {
   GraduationCap, FileText, MessageSquare, ArrowRight, Sparkles
 } from 'lucide-react'
 
-const fadeUp = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fadeUp: any = {
   hidden: { opacity: 0, y: 24 },
   show: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+    transition: {
+      duration: 0.5,
+      delay: i * 0.1,
+      ease: 'easeOut',
+    },
   }),
 }
 
@@ -58,30 +63,29 @@ const steps = [
 const faqs = [
   {
     q: 'How is this different from using the free search?',
-    a: 'The free search is great for exploring. The Match Report is for when you\'re serious about applying — we do the analysis for you, considering factors like GPA compatibility, language requirements, and document demands that are hard to cross-reference manually.',
+    a: "The free search is great for exploring. The Match Report is for when you're serious about applying — we do the analysis for you, considering factors like GPA compatibility, language requirements, and document demands that are hard to cross-reference manually.",
   },
   {
     q: 'How long does it take to get my report?',
-    a: 'Within 3–5 business days of payment confirmation. We\'ll email you when it\'s ready.',
+    a: "Within 3–5 business days of payment confirmation. We'll email you when it's ready.",
   },
   {
     q: 'Do I need to upload a transcript?',
-    a: 'No, it\'s optional. But a transcript helps us assess your GPA accurately and increases the quality of the shortlist.',
+    a: "No, it's optional. But a transcript helps us assess your GPA accurately and increases the quality of the shortlist.",
   },
   {
-    q: 'What if I\'m not happy with the report?',
-    a: 'We stand behind our work. If your report doesn\'t meet the scope described, contact us at hello@studymetaverse.com and we\'ll make it right.',
+    q: "What if I'm not happy with the report?",
+    a: "We stand behind our work. If your report doesn't meet the scope described, contact us at hello@studymetaverse.com and we'll make it right.",
   },
   {
     q: 'Can I request a specific university or city?',
-    a: 'Yes — there\'s a notes field in the form. Let us know any preferences and we\'ll do our best to include them.',
+    a: "Yes — there's a notes field in the form. Let us know any preferences and we'll do our best to include them.",
   },
 ]
 
 export default function MatchReport() {
   return (
     <div className="min-h-screen bg-background">
-
       {/* Hero */}
       <section className="relative overflow-hidden pt-20 pb-24 px-4">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
@@ -139,7 +143,6 @@ export default function MatchReport() {
               A single payment of <strong className="text-foreground">€29</strong> gets you everything below.
             </p>
           </motion.div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {deliverables.map((item, i) => (
               <motion.div
@@ -167,7 +170,6 @@ export default function MatchReport() {
           >
             <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4">How it works</h2>
           </motion.div>
-
           <div className="space-y-6">
             {steps.map((step, i) => (
               <motion.div
@@ -218,7 +220,6 @@ export default function MatchReport() {
           >
             <h2 className="text-3xl font-black text-foreground">Questions</h2>
           </motion.div>
-
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <motion.details
@@ -259,7 +260,6 @@ export default function MatchReport() {
           </Link>
         </motion.div>
       </section>
-
     </div>
   )
 }
